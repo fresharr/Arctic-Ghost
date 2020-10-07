@@ -36,7 +36,8 @@ else
 	echo "Monitor mode activated!"
 fi
 
-cd ..sudo airmon-ng start wlan0
+cd ..
+sudo airmon-ng start wlan0
 #check if switch == 1
 if [ $switch == 1 ]
 then
