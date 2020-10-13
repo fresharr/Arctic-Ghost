@@ -1,3 +1,3 @@
-# Arctic-Ghost
-# New add
-# test
+# Arctic-Ghost Notes
+
+# To Do:
