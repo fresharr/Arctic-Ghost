@@ -44,7 +44,7 @@ else
 	sleep 10
 fi
 
-cd #back to home directory
+cd .. #back to home directory
 sudo airmon-ng start wlan0 #scan networks
 
 #check if switch == 1
