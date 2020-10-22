@@ -2,7 +2,7 @@
 
 #Script for Drone40
 #Created by Matt Arrison
-#echo "kalipass" | sudo -S ./deauth.sh
+#echo "kalipass" | sudo -S ./deauth-0.sh
 echo "p455w0rd"
 echo "              //"
 echo "              |"
