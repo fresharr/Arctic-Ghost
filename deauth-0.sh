@@ -54,7 +54,7 @@ then
 else
 
 	timeout $time sudo airodump-ng -w bigData --output-format csv wlan0
-	echo "Your data file has been created in the ~ directory"
+	echo "Your data file has been created in the Arctic-Ghost directory"
 	echo "Select the Wi-Fi to you wish to attack..."
 fi
 
