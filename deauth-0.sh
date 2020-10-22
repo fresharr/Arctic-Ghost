@@ -16,7 +16,7 @@ echo "              //"
 
 echo " "
 echo "Waiting for drone to get into place..."
-sleep 20
+sleep 20 #can change values based on how long it will it take to get into place
 echo "ATTACK!!"
 sleep 10
 
