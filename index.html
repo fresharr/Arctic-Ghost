@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+    <title>ArcticGhost WiFi Deauther</title>
+  </head>
+  <body>
+    <h1>ArcticGhost WiFi Deauther</h1>
+    <div>
+	    <button id="scanButton" type="button" class="scan-button">Scan for Networks</button>
+	    <!--<input type="button" id="scanBtn" value="Scan For Networks" onclick="scan()" />-->
+	    <button id="attackButton" type="button" class="attack-button">Execute an Attack</button>
+    </div>
+    We are using Node.js <span id="node-version"></span>,
+    Chromium <span id="chrome-version"></span>,
+    and Electron <span id="electron-version"></span>.
+
+    <!-- You can also require other files to run in this process -->
+    <!--<script src="./renderer.js"></script>-->
+		    <script> require('./renderer.js')</script>
+  </body>
+</html>

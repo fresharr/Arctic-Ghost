@@ -1,0 +1,30 @@
+body {
+	background-color: gray;
+}
+
+button {
+	border: none;
+	border-radius: 8px;
+	color: white;
+	padding: 15px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+}
+
+.scan-button {
+	background-color: green;
+}
+.attack-button {
+	background-color: red;
+}
+
+h1 {
+	text-align:center;
+	color: black;
+}
+
+div {
+	text-align:center;
+}
